@@ -22,8 +22,11 @@ Route::get('/', function () {
 
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login.process');
+
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+    
 
     Route::prefix('master/jenis-surat')->name('master.jenis_surat.')->group(function () {
         Route::get('/', [JenisSuratController::class, 'index'])->name('index');

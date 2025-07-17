@@ -31,12 +31,7 @@ class JenisSuratController extends Controller
     public function getData(Request $request)
     {
         $search = $request->query('search');
-        $data = JenisSuratModel::selectData()
-            ->when($search, function ($query, $search) {
-                $query->where('nama_jenis', 'like', "%$search%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $data = JenisSuratModel::selectData($search)->paginate(10);
 
         if ($request->ajax()) {
             return view('master.jenis_surat.data', ['data' => $data])->render();

@@ -22,9 +22,13 @@ class JenisSuratModel extends Model
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
 
-    public static function selectData()
+    public static function selectData($search = false)
     {
-        return self::where('isDeleted', 0);
+        $query = self::where('isDeleted', 0);
+        if ($search) {
+            $query->where('nama_jenis', 'like', "%$search%");
+        }
+        return $query->orderBy('created_at', 'desc');
     }
 
     public static function createData(array $data)

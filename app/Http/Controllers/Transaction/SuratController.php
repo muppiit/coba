@@ -9,6 +9,7 @@ use App\Models\Master\JenisSuratModel;
 use App\Models\Master\UserModel;
 use App\Traits\TraitsController;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\QrCodeHelper;
 
 class SuratController extends Controller
 {
@@ -16,30 +17,32 @@ class SuratController extends Controller
 
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        $data = SuratModel::selectData()
-            ->when($search, function ($query, $search) {
-                $query->where('nomor_surat', 'like', "%$search%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $data = SuratModel::selectData($request->query('search'))->paginate(10);
+        $user = Auth::user();
+        $dataQr = "Nama: {$user->nama_lengkap}\nEmail: {$user->email}\nUsername: {$user->username}\nRole: {$user->role}";
+
+        // QR Endroid via Helper
+        $qrCodeEndroid = QrCodeHelper::generate($dataQr, [
+            'size' => 100,
+            'margin' => 5,
+            'foreground' => [0, 0, 128], // biru dongker
+            'logoPath' => public_path('images/logo.png'),
+            'logoWidth' => 45,
+        ]);
 
         return view('transaction.surat.index', [
             'data' => $data,
             'title' => 'Surat',
             'breadcrumb' => ['Transaksi', 'Surat'],
+            'qrCodeEndroid' => $qrCodeEndroid,
         ]);
     }
 
     public function getData(Request $request)
     {
         $search = $request->query('search');
-        $data = SuratModel::selectData()
-            ->when($search, function ($query, $search) {
-                $query->where('nomor_surat', 'like', "%$search%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+
+        $data = SuratModel::selectData($search)->paginate(10);
 
         if ($request->ajax()) {
             return view('transaction.surat.data', ['data' => $data])->render();
@@ -136,12 +139,12 @@ class SuratController extends Controller
     {
         $detail = SuratModel::findOrFail($id);
 
-        if ($request->isMethod('get')) {
-            return view('transaction.surat.delete', [
-                'data' => $detail,
-                'title' => 'Hapus Surat'
-            ]);
-        }
+        // if ($request->isMethod('get')) {
+        //     return view('transaction.surat.delete', [
+        //         'data' => $detail,
+        //         'title' => 'Hapus Surat'
+        //     ]);
+        // }
 
         try {
             SuratModel::deleteData($id);
