@@ -22,13 +22,14 @@ class SuratController extends Controller
         $dataQr = "Nama: {$user->nama_lengkap}\nEmail: {$user->email}\nUsername: {$user->username}\nRole: {$user->role}";
 
         // QR Endroid via Helper
-        $qrCodeEndroid = QrCodeHelper::generate($dataQr, [
-            'size' => 100,
-            'margin' => 5,
-            'foreground' => [0, 0, 128], // biru dongker
-            'logoPath' => public_path('images/logo.png'),
-            'logoWidth' => 45,
-        ]);
+        $qrCodeEndroid = QrCodeHelper::generate($dataQr);
+        // [
+        //     'size' => 100,
+        //     'margin' => 5,
+        //     'foreground' => [0, 0, 128], // biru dongker
+        //     'logoPath' => public_path('images/logo.png'),
+        //     'logoWidth' => 45,
+        // ]);
 
         return view('transaction.surat.index', [
             'data' => $data,
@@ -69,7 +70,6 @@ class SuratController extends Controller
                 'pengirim' => 'required|string|max:100',
                 'penerima' => 'required|string|max:100',
                 'fk_m_jenis_surat' => 'required|exists:m_jenis_surat,id',
-                // 'fk_m_user' dihapus dari validasi
             ], $request->all());
 
             if ($validator->fails()) {
